@@ -9,33 +9,38 @@ dp = []
 def knapsack(s, i, r):
     if i == -1 or r == 0:
         return 0
-    if i in dp:
+    if dp[i][r] >= 0:
         return dp[i][r]
-    if s[i] >= r:
+    if s[i] > r:
         dp[i][r] = knapsack(s, i-1, r)
         return dp[i][r]
     dp[i][r] = max(s[i] + knapsack(s, i-1, r - s[i]), knapsack(s, i-1, r))
     return dp[i][r]
 
 
-# dp = {}
-# M = 17
-# N = 4
-# s = [2, 5, 6, 8]
-#dp = [[0 for x in range(M + 1)] for x in range(N + 1)]
+def print_items(s, n, m, result):
+    for i in range(n, -1, -1):
+        if result <= 0:
+            break
+        if result == dp[i-1][m]:
+            continue
+        else:
+            print(i)
+            m = m - s[i]
+            result = result - s[i]
+
 
 class Individual:
     def __init__(self, ln):
         self.length = ln
         self.genes = []
-        self.fitness = [0,0] # [score,flag]     flag = -1 => sum > Max
+        self.fitness = [0, 0, 0] # [score,flag]     flag = -1 => sum > Max
 
     def random_individual(self):
         self.genes = [random.randint(0, 1) for _ in range(self.length)]
 
     def calc_fitness(self, slices, Mx):
         val = sum([slices[i] * self.genes[i] for i in range(self.length)])
-
         fitness = [1/(abs(Mx - val) + 1), 1, val]
         if val > Mx:
             fitness[1] = -1
@@ -91,7 +96,7 @@ class GeneticAlgorithm:
 
         return instance_a_cpy, instance_b_cpy
 
-    def mutate(self, individual, chance=0.15):
+    def mutate(self, individual, chance=0.3):
         individual_tmp = copy.copy(individual)
         for i in range(individual_tmp.length):
             ch = random.random()
@@ -107,7 +112,6 @@ class GeneticAlgorithm:
         self.selected = []
         my_sum = sum([i.fitness[0] for i in self.population.individuals])
         selection_probs = [i.fitness[0]/my_sum for i in self.population.individuals]
-        # print(my_sum, len(selection_probs), self.population.size)
         self.selected = [self.population.individuals[numpy.random.choice(a=self.population.size, p=selection_probs)] for _ in range(self.selection_size)]
 
     def do_crossover_and_mutation(self):
@@ -117,21 +121,14 @@ class GeneticAlgorithm:
             self.mutate(a)
             self.mutate(b)
             a.calc_fitness(self.slices, self.Mx)
-            # print(a.genes, a.fitness)
             b.calc_fitness(self.slices, self.Mx)
-            # print (b.genes, b.fitness)
             self.next_generation.append(a)
             self.next_generation.append(b)
 
     def update_population(self):
-        self.next_generation += self.population.individuals
+        self.next_generation = copy.copy(self.population.individuals) + copy.copy(self.next_generation)
         self.next_generation.sort(reverse=True)
-        # print("update pop")
-        # for n in self.next_generation:
-        #     print(n.genes, n.fitness)
-        # self.population.individuals.sort(reverse=True)
-
-        self.population.individuals = self.next_generation[:self.selection_size]
+        self.population.individuals = copy.copy(self.next_generation[:self.selection_size])
 
     def run(self):
         self.find_scores()                      # Init: To determine if an instance is good enough
@@ -144,26 +141,27 @@ class GeneticAlgorithm:
 
             for i in self.population.individuals:
                 if i.fitness[1] > 0 and self.best_of_the_bests.fitness[0] < i.fitness[0]:
-                    self.best_of_the_bests = i
+                    # print(cnt, i.fitness, '---', i.genes)
+                    # self.best_of_the_bests.fitness = i.fitness
+                    # self.best_of_the_bests.genes = copy.copy(i.genes)
+                    self.best_of_the_bests = copy.deepcopy(i)
 
-            if cnt % 27 == 0:
+            if cnt % 200 == 0:
                 print(cnt, self.best_of_the_bests.fitness, '---', self.best_of_the_bests.genes)
             cnt += 1
 
 
 if __name__ == "__main__":
-    input = open("input/b_small.in")
+    input = open("input/c_medium.in")
     M, N = map(int,input.readline().rstrip().split())
     S = list(map(int, input.readline().rstrip().split()))
     print("max = " + str(M) + " ---- N = "+str(N))
-    # dp = [[0 for x in range(M + 1)] for x in range(N + 1)]
-    # tmp_dict = defaultdict(lambda : -1)
-    # dp = defaultdict(lambda : copy(tmp_dict))
-    # print(knapsack(S, N-1, M))
+
     G = GeneticAlgorithm(S, N, M)
     G.run()
+
     tmp_dict = defaultdict(lambda : -1)
-    dp = defaultdict(lambda : copy(tmp_dict))
-    print(knapsack(S, N-1, M))
-    print(dp)
-    # print(knapsack3(N-1,M))
+    dp = defaultdict(lambda : copy.copy(tmp_dict))
+    result = knapsack(S, N - 1, M)
+    # print(result)
+    # print_items(S, N-1, M, result)
