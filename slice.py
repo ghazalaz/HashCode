@@ -128,7 +128,7 @@ class GeneticAlgorithm:
         instance_a_cpy.genes[:loc], instance_b_cpy.genes[:loc] = instance_b_cpy.genes[:loc],  instance_a_cpy.genes[:loc]
         return instance_a_cpy, instance_b_cpy
 
-    def mutate(self, individual, chance=0.15):
+    def mutate(self, individual, chance=0.015):
         individual_tmp = copy.deepcopy(individual)
         for i in range(individual_tmp.length):
             ch = random.random()
@@ -260,7 +260,7 @@ if __name__ == "__main__":
         'e_also_big.in',    # 4
     ]
 
-    input = open("input/" + filenames[3])
+    input = open("input/" + filenames[0])
     M, N = map(int,input.readline().rstrip().split())
     S = list(map(int, input.readline().rstrip().split()))
     print("max = " + str(M) + " ---- N = "+str(N), '\n\n')
