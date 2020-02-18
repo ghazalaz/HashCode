@@ -1,0 +1,15 @@
+{
+    "file": {
+        "in_dir": "input/",
+        "in_filename": "a_example.in",
+        "file_index": 0,
+        "out_dir": "output/",
+        "out_filename": "a_example.out"
+    },
+    "GA": {
+        "population_size": 50,
+        "mutation_rate": 0.01,
+        "crossover_rate": 0.8
+    },
+    "DEBUG": true
+}
