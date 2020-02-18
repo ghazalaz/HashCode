@@ -214,7 +214,11 @@ class GeneticAlgorithm:
         #                               + copy.deepcopy(self.next_generation[:self.pop_size - 21])\
         #                               + copy.deepcopy(self.next_generation[-20:])
 
-    def reduce_individual(self, individual, point, option=0):
+    def reduce_individual(self, individual, point, option=1):
+        if random.random() > 0.5:
+            option = 0
+        else:
+            option = 1
         value = individual.fitness[2]
         if option == 0:
             loc = int(point * self.size_of_slices)
