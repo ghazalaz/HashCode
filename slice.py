@@ -171,7 +171,6 @@ class GeneticAlgorithm:
             self.next_generation.append(b)
 
     def update_population(self):
-        # self.next_generation = copy.deepcopy(self.population.individuals) + copy.deepcopy(self.next_generation)
         self.next_generation.sort(reverse=True)
         keep_pop = int(self.pop_size * 0.3)
         rand_pop = int(self.pop_size * 0.3)
@@ -210,9 +209,6 @@ class GeneticAlgorithm:
         self.population.individuals += rand_gen[:]
         self.population.individuals = self.population.individuals[:self.pop_size]
 
-        # self.population.individuals = [ copy.deepcopy(self.best_of_the_bests)]\
-        #                               + copy.deepcopy(self.next_generation[:self.pop_size - 21])\
-        #                               + copy.deepcopy(self.next_generation[-20:])
 
     def reduce_individual(self, individual, point, option=1):
         if random.random() > 0.5:
@@ -234,7 +230,7 @@ class GeneticAlgorithm:
         individual.calc_fitness(self.slices, self.max_slices)
         return individual
 
-    def run(self):
+    def run(self, thread_name=0):
         self.find_scores()                      # Init: To determine if an instance is good enough
         cnt = 0
         while True:
@@ -245,11 +241,15 @@ class GeneticAlgorithm:
             for i in self.population.individuals:
                 if i.fitness[1] > 0 and self.best_of_the_bests.fitness[0] < i.fitness[0]:
                     self.best_of_the_bests = copy.deepcopy(i)
-            if cnt % 20 == 0:
+            if cnt % 50 == 0:
+                print("Thread : " + thread_name)
                 print([i.fitness[2] for i in self.population.individuals])
                 print(cnt, self.best_of_the_bests.fitness)
-                # print(self.next_generation)
             cnt += 1
+            if self.best_of_the_bests.fitness[2] == self.max_slices:
+                print("Thread: " + thread_name + " ----- Iterations: "+str(cnt))
+                return self.best_of_the_bests
+
 
 if __name__ == "__main__":
     filenames = [
@@ -260,16 +260,10 @@ if __name__ == "__main__":
         'e_also_big.in',    # 4
     ]
 
-    input = open("input/" + filenames[0])
+    input = open("input/" + filenames[2])
     M, N = map(int,input.readline().rstrip().split())
     S = list(map(int, input.readline().rstrip().split()))
     print("max = " + str(M) + " ---- N = "+str(N), '\n\n')
-
-    tmp_dict = defaultdict(lambda: -1)
-    dp = defaultdict(lambda: copy.copy(tmp_dict))
-    # result = knapsack(S, N - 1, M)
-    # print(result)
-    # print_items(S, N-1, M, result)
 
     G = GeneticAlgorithm(S, N, M, pop_size=50)
     try:
