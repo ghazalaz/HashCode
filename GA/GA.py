@@ -230,6 +230,9 @@ class GeneticAlgorithm:
                 if i.fitness[1] > 0 and self.best_of_the_bests.fitness[0] < i.fitness[0]:
                     self.best_of_the_bests = copy.deepcopy(i)
             if cnt % 20 == 0:
-                print([i.fitness[2] for i in self.population.individuals])
-                print(cnt, self.best_of_the_bests.fitness)
+                pass
+                # print([i.fitness[2] for i in self.population.individuals])
+                # print(cnt, self.best_of_the_bests.fitness)
             cnt += 1
+            if self.best_of_the_bests.fitness[0] == 1:
+                return True
